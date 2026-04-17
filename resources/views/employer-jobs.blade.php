@@ -4,7 +4,7 @@
 @section('content')
     <section>
         <h2>Kelola Lowongan (Employer)</h2>
-        <p><a href="javascript:history.back()">Kembali</a></p>
+        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
         <p><a href="/employer/jobs/new">Tambah Lowongan</a></p>
         <p><a href="/">Lihat daftar lowongan</a></p>
         <button type="button" id="loadMyJobsBtn">Muat Lowongan Saya</button>

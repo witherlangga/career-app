@@ -20,7 +20,6 @@ class RegisterRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'confirmed', Password::defaults()],
             'role' => ['required', 'in:' . implode(',', [
-                User::ROLE_ADMIN,
                 User::ROLE_EMPLOYER,
                 User::ROLE_WORKER,
             ])],

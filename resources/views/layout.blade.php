@@ -39,6 +39,20 @@
                 if (profileLink) profileLink.style.display = 'none';
             }
         })();
+
+        (function refreshOnBack() {
+            const refresh = sessionStorage.getItem('refreshOnLoad');
+            if (refresh === '1') {
+                sessionStorage.removeItem('refreshOnLoad');
+                window.location.reload();
+            }
+        })();
+
+        function goBackAndRefresh() {
+            sessionStorage.setItem('refreshOnLoad', '1');
+            window.history.back();
+            return false;
+        }
     </script>
 </body>
 </html>

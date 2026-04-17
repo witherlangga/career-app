@@ -132,8 +132,7 @@ class AuthController extends Controller
     private function abilitiesForRole(string $role): array
     {
         return match ($role) {
-            User::ROLE_ADMIN => ['*'],
-            User::ROLE_EMPLOYER => ['jobs:write', 'applications:read'],
+            User::ROLE_EMPLOYER => ['jobs:write', 'applications:read', 'profile:write'],
             User::ROLE_WORKER => ['applications:write', 'profile:write'],
             default => [],
         };

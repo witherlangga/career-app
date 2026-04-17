@@ -4,8 +4,6 @@
 @section('content')
     <section>
         <h2>Login</h2>
-        <p><a href="javascript:history.back()">Kembali</a></p>
-        <p><a href="/">Kembali ke Dashboard</a></p>
         <div id="notice" style="display: none;"></div>
         <form id="loginForm">
             <label>Email <input name="email" type="email" required /></label><br />

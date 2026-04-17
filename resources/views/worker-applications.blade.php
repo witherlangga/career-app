@@ -4,7 +4,7 @@
 @section('content')
     <section>
         <h2>Lamaran Saya</h2>
-        <p><a href="javascript:history.back()">Kembali</a></p>
+        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
         <div id="appsList"></div>
     </section>
 

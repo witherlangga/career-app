@@ -6,6 +6,7 @@ Route::view('/', 'dashboard');
 Route::view('/login', 'login');
 Route::view('/register', 'register');
 Route::view('/profile', 'profile');
+Route::view('/profile/edit', 'profile-edit');
 Route::view('/employer/jobs/new', 'employer-create-job');
 Route::view('/employer/jobs', 'employer-jobs');
 Route::get('/jobs/{jobPost}', function () {

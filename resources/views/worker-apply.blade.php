@@ -4,7 +4,7 @@
 @section('content')
     <section>
         <h2>Lamar Pekerjaan</h2>
-        <p><a href="javascript:history.back()">Kembali</a></p>
+        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
         <form id="applyForm" enctype="multipart/form-data">
             <label>Nama Lengkap <input name="full_name" type="text" required /></label><br />
             <label>Email <input name="email" type="email" required /></label><br />
@@ -43,6 +43,15 @@
             }
         }
 
+        async function ensureWorker() {
+            const me = await request('/auth/me', { method: 'GET' });
+            if (me?.user?.role !== 'worker') {
+                window.location.href = '/';
+                return false;
+            }
+            return true;
+        }
+
         function buildBio(form) {
             const data = new FormData(form);
             const currentRole = data.get('current_role');
@@ -62,6 +71,8 @@
 
         document.getElementById('applyForm').addEventListener('submit', async (event) => {
             event.preventDefault();
+            const ok = await ensureWorker();
+            if (!ok) return;
             const form = event.target;
             const formData = new FormData(form);
 
@@ -87,5 +98,9 @@
             await request('/jobs/' + jobId + '/apply', { method: 'POST' });
             window.location.href = '/jobs/' + jobId;
         });
+
+        (async function init() {
+            await ensureWorker();
+        })();
     </script>
 @endsection

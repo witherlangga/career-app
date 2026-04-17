@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobPostController;
@@ -29,6 +28,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
 
     Route::get('profile', [ProfileController::class, 'show']);
     Route::put('profile', [ProfileController::class, 'update'])->middleware('abilities:profile:write');
+    Route::post('profile/avatar', [ProfileController::class, 'uploadAvatar'])->middleware('abilities:profile:write');
     Route::post('profile/cv', [ProfileController::class, 'uploadCv'])->middleware('abilities:profile:write');
 
     Route::post('jobs/{jobPost}/apply', [ApplicationController::class, 'store'])
@@ -45,12 +45,4 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
         Route::patch('applications/{application}', [ApplicationController::class, 'updateStatus']);
     });
 
-    Route::prefix('admin')->middleware('role:admin')->group(function () {
-        Route::get('stats', [AdminController::class, 'stats']);
-        Route::get('users', [AdminController::class, 'users']);
-        Route::get('users/{user}', [AdminController::class, 'showUser']);
-        Route::patch('users/{user}', [AdminController::class, 'updateUser']);
-        Route::get('jobs', [AdminController::class, 'jobs']);
-        Route::get('applications', [AdminController::class, 'applications']);
-    });
 });

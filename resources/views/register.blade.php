@@ -4,8 +4,6 @@
 @section('content')
     <section>
         <h2>Register</h2>
-        <p><a href="javascript:history.back()">Kembali</a></p>
-        <p><a href="/">Kembali ke Dashboard</a></p>
         <div id="notice" style="display: none;"></div>
         <form id="registerForm">
             <label>Name <input name="name" type="text" required /></label><br />
@@ -14,7 +12,6 @@
             <label>Confirm Password <input name="password_confirmation" type="password" required /></label><br />
             <label>Role
                 <select name="role" required>
-                    <option value="admin">admin</option>
                     <option value="employer" selected>employer</option>
                     <option value="worker">worker</option>
                 </select>

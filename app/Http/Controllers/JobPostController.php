@@ -12,11 +12,7 @@ class JobPostController extends Controller
     public function index(Request $request)
     {
         $query = JobPost::query()->with('employer:id,name,avatar');
-        $user = $request->user();
-
-        if (!$user || !$user->isAdmin()) {
-            $query->where('status', 'open');
-        }
+        $query->where('status', 'open');
 
         if ($search = $request->query('q')) {
             $query->where(function ($inner) use ($search) {
@@ -60,7 +56,7 @@ class JobPostController extends Controller
     {
         if ($jobPost->status === 'closed') {
             $user = $request->user();
-            $canView = $user && ($user->isAdmin() || $jobPost->employer_id === $user->id);
+            $canView = $user && $jobPost->employer_id === $user->id;
 
             if (!$canView) {
                 return response()->json(['message' => 'Forbidden'], 403);
@@ -107,7 +103,7 @@ class JobPostController extends Controller
 
     public function update(JobPostUpdateRequest $request, JobPost $jobPost)
     {
-        if ($jobPost->employer_id !== $request->user()->id && !$request->user()->isAdmin()) {
+        if ($jobPost->employer_id !== $request->user()->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -119,7 +115,7 @@ class JobPostController extends Controller
 
     public function destroy(Request $request, JobPost $jobPost)
     {
-        if ($jobPost->employer_id !== $request->user()->id && !$request->user()->isAdmin()) {
+        if ($jobPost->employer_id !== $request->user()->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

@@ -4,7 +4,7 @@
 @section('content')
     <section>
         <h2>Edit Lowongan</h2>
-        <p><a href="javascript:history.back()">Kembali</a></p>
+        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
         <form id="updateJobForm">
             <label>Judul <input name="title" type="text" /></label><br />
             <label>Kategori <input name="category" type="text" /></label><br />
