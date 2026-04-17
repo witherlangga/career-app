@@ -16,6 +16,7 @@ Route::get('/jobs/{jobPost}/apply', function () {
 	return view('worker-apply');
 });
 Route::view('/worker/applications', 'worker-applications');
+Route::view('/employer/applications', 'employer-applications');
 Route::get('/employer/jobs/{jobPost}/edit', function () {
     return view('employer-edit-job');
 });

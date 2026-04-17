@@ -2,120 +2,259 @@
 @extends('layout')
 
 @section('content')
-    <section>
-        <h2>Detail Lowongan</h2>
-        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
-        <div id="jobBox"></div>
-    </section>
+    <div class="container py-4">
+        <!-- Hero Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 10px;">
+                    <h1 class="h2 mb-2" id="jobTitle" style="font-weight: 700;">Loading...</h1>
+                    <p class="mb-0" style="font-size: 1.1rem;">
+                        <i class="bi bi-building"></i> <span id="companyName" style="font-weight: 500;">-</span>
+                    </p>
+                </div>
+            </div>
+        </div>
 
-    <section id="applySection" style="display: none;">
-        <h2>Melamar</h2>
-        <p><a id="applyLink" href="#">Lamar Pekerjaan</a></p>
-    </section>
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-md-8">
+                <!-- Basic Info -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <p class="text-muted small">TIPE PEKERJAAN</p>
+                                <p class="mb-3"><strong><span id="employmentType" class="badge bg-info">-</span></strong></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-muted small">KISARAN GAJI</p>
+                                <p class="mb-0"><strong id="salary">-</strong></p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="text-muted small">LOKASI</p>
+                                <p class="mb-0"><strong id="location">-</strong></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-muted small">DIPOST</p>
+                                <p class="mb-0"><strong id="postedDate">-</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <section id="ownerSection" style="display: none;">
-        <h2>Kelola Lowongan</h2>
-        <p><a id="editJobLink" href="#">Edit Lowongan</a></p>
-        <button type="button" id="deleteJobBtn">Hapus Lowongan</button>
-    </section>
+                <!-- Description -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                        <h5 class="mb-0"><i class="bi bi-file-text"></i> Deskripsi Pekerjaan</h5>
+                    </div>
+                    <div class="card-body" style="line-height: 1.8;">
+                        <div id="description">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Requirements -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                        <h5 class="mb-0"><i class="bi bi-list-check"></i> Persyaratan</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="requirements">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-between mb-4">
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='/'">
+                        <i class="bi bi-arrow-left"></i> Kembali ke Daftar
+                    </button>
+                    <div>
+                        <button type="button" class="btn btn-danger me-2" id="deleteBtn" style="display: none;" onclick="deleteJob()">
+                            <i class="bi bi-trash"></i> Hapus
+                        </button>
+                        <a href="#" class="btn btn-warning me-2" id="editBtn" style="display: none;">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-primary btn-lg" id="applyBtn" onclick="goToApply()" style="display: none; padding: 12px 40px;">
+                            <i class="bi bi-hand-thumbs-up"></i> Lamar Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <!-- Company Info -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                        <h6 class="mb-0"><i class="bi bi-building"></i> Informasi Perusahaan</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">
+                            <strong id="companyNameInfo">-</strong>
+                        </p>
+                        <p class="text-muted small" id="companyDescription">
+                            Tidak ada deskripsi
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                        <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Statistik</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <p class="text-muted small">PELAMAR</p>
+                                <p class="h5 mb-0"><strong id="applicantCount">0</strong></p>
+                            </div>
+                            <div class="col-6">
+                                <p class="text-muted small">DILIHAT</p>
+                                <p class="h5 mb-0"><strong id="viewCount">0</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apply Button for Mobile -->
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary btn-lg" id="applyBtnMobile" onclick="goToApply()" style="display: none;">
+                        <i class="bi bi-hand-thumbs-up"></i> Lamar Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const jobBox = document.getElementById('jobBox');
-        const applySection = document.getElementById('applySection');
-        const ownerSection = document.getElementById('ownerSection');
-        const baseUrl = 'http://127.0.0.1:8000/api/v1';
         const jobId = window.location.pathname.split('/').pop();
-        const source = new URLSearchParams(window.location.search).get('src');
-
-        async function request(path, options = {}) {
-            const headers = options.headers || {};
-            const token = localStorage.getItem('apiToken');
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-
-            const response = await fetch(baseUrl + path, {
-                ...options,
-                headers,
-            });
-
-            let data;
+        
+        async function loadJobDetail() {
             try {
-                data = await response.json();
+                const token = localStorage.getItem('apiToken');
+                console.log('Fetching job detail for ID:', jobId);
+                
+                const response = await fetch(baseUrl + '/jobs/' + jobId, {
+                    headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to load job detail');
+                }
+
+                if (data.data) {
+                    const job = data.data;
+                    console.log('Job data loaded:', job);
+                    
+                    const employerName = job.employer?.name || 'PT Anonim';
+                    document.getElementById('jobTitle').textContent = job.title || 'Untitled';
+                    document.getElementById('companyName').textContent = employerName;
+                    document.getElementById('companyNameInfo').textContent = employerName;
+                    
+                    const jobType = job.type === 'full-time' ? 'Full-time' : 'Part-time';
+                    document.getElementById('employmentType').textContent = jobType;
+                    document.getElementById('salary').textContent = job.salary_range || 'Sesuai kesepakatan';
+                    document.getElementById('location').textContent = job.location || 'Tidak ditentukan';
+                    
+                    if (job.created_at) {
+                        document.getElementById('postedDate').textContent = new Date(job.created_at).toLocaleDateString('id-ID');
+                    }
+                    
+                    document.getElementById('description').innerHTML = job.description ? '<p>' + job.description.replace(/\n/g, '</p><p>') + '</p>' : '<p class="text-muted">Tidak ada deskripsi</p>';
+                    document.getElementById('requirements').innerHTML = formatList(job.requirements);
+                    document.getElementById('viewCount').textContent = job.view_count || 0;
+
+                    // Show apply button if user is logged in and is worker
+                    if (token) {
+                        const userResponse = await fetch(baseUrl + '/auth/me', {
+                            headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        const userData = await userResponse.json();
+                        
+                        if (userData.user) {
+                            if (userData.user.role === 'worker') {
+                                document.getElementById('applyBtn').style.display = 'block';
+                                document.getElementById('applyBtnMobile').style.display = 'block';
+                            } else if (userData.user.role === 'employer') {
+                                document.getElementById('deleteBtn').style.display = 'block';
+                                document.getElementById('editBtn').style.display = 'block';
+                                document.getElementById('editBtn').href = '/employer/jobs/' + jobId + '/edit';
+                            }
+                        }
+                    }
+                } else {
+                    throw new Error('No data in response');
+                }
             } catch (error) {
-                data = { message: 'Invalid JSON response' };
+                console.error('Full error:', error);
+                document.getElementById('description').innerHTML = '<p class="text-danger"><i class="bi bi-exclamation-triangle"></i> Gagal memuat detail pekerjaan: ' + error.message + '</p>';
             }
-
-            return data;
         }
 
-        function renderJob(job) {
-            if (!job) {
-                jobBox.textContent = 'Lowongan tidak ditemukan.';
-                return;
-            }
-
-            const list = document.createElement('ul');
-            const items = [
-                `Judul: ${job.title || '-'}`,
-                `Kategori: ${job.category || '-'}`,
-                `Tipe: ${job.type || '-'}`,
-                `Rentang Gaji: ${job.salary_range || '-'}`,
-                `Status: ${job.status || '-'}`,
-                `Deskripsi: ${job.description || '-'}`,
-                `Persyaratan: ${job.requirements || '-'}`,
-            ];
-            items.forEach((text) => {
-                const li = document.createElement('li');
-                li.textContent = text;
-                list.appendChild(li);
-            });
-            jobBox.innerHTML = '';
-            jobBox.appendChild(list);
-        }
-
-        async function init() {
-            const jobResponse = await request('/jobs/' + jobId, { method: 'GET' });
-            const job = jobResponse?.job;
-            renderJob(job);
-
-            const token = localStorage.getItem('apiToken');
-            if (!token) {
-                applySection.style.display = 'none';
-                ownerSection.style.display = 'none';
-                return;
-            }
-
-            const me = await request('/auth/me', { method: 'GET' });
-            const user = me?.user;
-            if (!user || !job) {
-                return;
-            }
-
-            const isOwner = job.employer_id === user.id;
-            if (isOwner) {
-                ownerSection.style.display = 'block';
-                applySection.style.display = 'none';
-                const editLink = document.getElementById('editJobLink');
-                if (editLink) {
-                    editLink.href = `/employer/jobs/${job.id}/edit`;
-                }
+        function formatList(text) {
+            if (!text) return '<p class="text-muted">Tidak ada informasi</p>';
+            
+            let html = '<ul style="list-style: none; padding-left: 0;">';
+            
+            if (text.includes('\n')) {
+                const items = text.split('\n').filter(item => item.trim());
+                html = items.map(item => {
+                    const trimmed = item.trim();
+                    return `<li style="margin-bottom: 10px; padding-left: 25px; position: relative;">
+                        <i class="bi bi-check-circle" style="position: absolute; left: 0; color: #667eea;"></i>
+                        ${trimmed}
+                    </li>`;
+                }).join('');
+                html = '<ul style="list-style: none; padding-left: 0;">' + html + '</ul>';
+            } else if (text.includes(',')) {
+                const items = text.split(',').filter(item => item.trim());
+                html = items.map(item => {
+                    const trimmed = item.trim();
+                    return `<li style="margin-bottom: 10px; padding-left: 25px; position: relative;">
+                        <i class="bi bi-check-circle" style="position: absolute; left: 0; color: #667eea;"></i>
+                        ${trimmed}
+                    </li>`;
+                }).join('');
+                html = '<ul style="list-style: none; padding-left: 0;">' + html + '</ul>';
             } else {
-                ownerSection.style.display = 'none';
-                const canApply = user.role === 'worker' && source === 'dashboard';
-                applySection.style.display = canApply ? 'block' : 'none';
-                const applyLink = document.getElementById('applyLink');
-                if (applyLink) {
-                    applyLink.href = `/jobs/${job.id}/apply`;
+                html = '<p>' + text + '</p>';
+            }
+            
+            return html;
+        }
+
+        function goToApply() {
+            window.location.href = '/jobs/' + jobId + '/apply';
+        }
+
+        async function deleteJob() {
+            if (confirm('Yakin ingin menghapus lowongan ini?')) {
+                try {
+                    const response = await fetch(baseUrl + '/employer/jobs/' + jobId, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('apiToken') }
+                    });
+                    if (response.ok) {
+                        showNotice('Lowongan berhasil dihapus');
+                        setTimeout(() => {
+                            window.location.href = '/employer/jobs';
+                        }, 1500);
+                    }
+                } catch (error) {
+                    showNotice('Error menghapus lowongan', true);
                 }
             }
         }
 
-        document.getElementById('deleteJobBtn').addEventListener('click', async () => {
-            await request('/employer/jobs/' + jobId, { method: 'DELETE' });
-            window.location.href = '/';
-        });
-
-        init();
+        loadJobDetail();
     </script>
 @endsection

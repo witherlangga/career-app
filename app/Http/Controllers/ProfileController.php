@@ -12,8 +12,14 @@ class ProfileController extends Controller
     public function show(Request $request)
     {
         $profile = Profile::firstOrCreate(['user_id' => $request->user()->id]);
+        $user = $request->user();
 
-        return response()->json(['profile' => $profile]);
+        return response()->json([
+            'data' => array_merge(
+                $profile->toArray(),
+                ['user' => $user->toArray()]
+            )
+        ]);
     }
 
     public function update(ProfileUpdateRequest $request)
@@ -36,15 +42,17 @@ class ProfileController extends Controller
         $profile->save();
 
         return response()->json([
-            'user' => $user->load('profile'),
-            'profile' => $profile,
+            'data' => array_merge(
+                $profile->toArray(),
+                ['user' => $user->fresh()->toArray()]
+            )
         ]);
     }
 
     public function uploadAvatar(Request $request)
     {
         $validated = $request->validate([
-            'avatar' => ['required', 'file', 'mimes:jpg,jpeg', 'max:2048'],
+            'avatar' => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         $user = $request->user();

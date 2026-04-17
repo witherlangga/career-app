@@ -18,9 +18,14 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         $validated = $request->validated();
+        
+        // Ensure name is set - use company_name if name is empty
+        $name = $validated['name'] ?? $validated['company_name'] ?? 'User ' . uniqid();
+        
+        \Log::info('Register - Using name: ' . $name);
 
         $user = User::create([
-            'name' => $validated['name'],
+            'name' => $name,
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
@@ -34,10 +39,12 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token', $abilities)->plainTextToken;
 
         return response()->json([
-            'token' => $token,
-            'token_type' => 'Bearer',
-            'abilities' => $abilities,
-            'user' => $user,
+            'data' => [
+                'token' => $token,
+                'token_type' => 'Bearer',
+                'abilities' => $abilities,
+                'user' => $user,
+            ],
         ], 201);
     }
 
@@ -55,16 +62,21 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token', $abilities)->plainTextToken;
 
         return response()->json([
-            'token' => $token,
-            'token_type' => 'Bearer',
-            'abilities' => $abilities,
-            'user' => $user,
+            'data' => [
+                'token' => $token,
+                'token_type' => 'Bearer',
+                'abilities' => $abilities,
+                'user' => $user,
+            ],
         ]);
     }
 
     public function me(Request $request)
     {
-        return response()->json(['user' => $request->user()->load('profile')]);
+        $user = $request->user()->load('profile');
+        return response()->json([
+            'user' => $user,
+        ]);
     }
 
     public function logout(Request $request)

@@ -63,7 +63,11 @@ class JobPostController extends Controller
             }
         }
 
-        return response()->json(['job' => $jobPost->load('employer:id,name,avatar')]);
+        $jobPostData = $jobPost->load('employer:id,name,avatar');
+        
+        return response()->json([
+            'data' => $jobPostData
+        ]);
     }
 
     public function myJobs(Request $request)
@@ -98,7 +102,7 @@ class JobPostController extends Controller
             'status' => $data['status'] ?? 'open',
         ]);
 
-        return response()->json(['job' => $jobPost], 201);
+        return response()->json(['data' => $jobPost], 201);
     }
 
     public function update(JobPostUpdateRequest $request, JobPost $jobPost)
@@ -110,7 +114,7 @@ class JobPostController extends Controller
         $jobPost->fill($request->validated());
         $jobPost->save();
 
-        return response()->json(['job' => $jobPost]);
+        return response()->json(['data' => $jobPost]);
     }
 
     public function destroy(Request $request, JobPost $jobPost)
@@ -121,6 +125,6 @@ class JobPostController extends Controller
 
         $jobPost->delete();
 
-        return response()->json(['message' => 'Deleted']);
+        return response()->json(['data' => ['message' => 'Deleted']]);
     }
 }

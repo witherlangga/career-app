@@ -2,52 +2,113 @@
 @extends('layout')
 
 @section('content')
-    <section>
-        <h2>Edit Profile</h2>
-        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
-        <p id="notice"></p>
-        <form id="profileForm">
-            <label>Nama <input name="name" type="text" /></label><br />
-            <label>Email <input name="email" type="email" /></label><br />
-            <label>Nomor HP <input name="phone_number" type="text" /></label><br />
-            <label>Bio <textarea name="bio"></textarea></label><br />
-            <label>Alamat <textarea name="address"></textarea></label><br />
-            <label>Skills (pisahkan dengan koma) <input name="skills" type="text" /></label><br />
-            <button type="submit">Simpan</button>
-        </form>
-        <div id="avatarPreview" style="margin: 8px 0;"></div>
-        <form id="avatarForm" enctype="multipart/form-data">
-            <label>Upload Avatar (JPG/JPEG) <input name="avatar" type="file" accept="image/jpeg" /></label><br />
-            <button type="submit">Upload Avatar</button>
-        </form>
-        <form id="cvForm" enctype="multipart/form-data">
-            <label>Upload CV (PDF/DOC/DOCX) <input name="cv" type="file" /></label><br />
-            <button type="submit">Upload CV</button>
-        </form>
-    </section>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 50px; border-radius: 10px; text-align: center;">
+                <h1 class="mb-3" style="font-size: 2.5rem; font-weight: 700;">
+                    <i class="bi bi-pencil-square"></i> Edit Profil
+                </h1>
+                <p style="font-size: 1.1rem;">Update informasi profil Anda</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <p id="notice" class="alert" style="display: none;"></p>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Informasi Pribadi</h5>
+                </div>
+                <div class="card-body">
+                    <form id="profileForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Lengkap</label>
+                                <input name="name" type="text" class="form-control" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input name="email" type="email" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nomor HP</label>
+                                <input name="phone_number" type="text" class="form-control" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Bio (Deskripsi Singkat)</label>
+                                <input name="bio" type="text" class="form-control" placeholder="Misal: Full Stack Developer dengan 5 tahun pengalaman" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Alamat</label>
+                            <textarea name="address" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Skills (pisahkan dengan koma)</label>
+                            <input name="skills" type="text" class="form-control" placeholder="Misal: PHP, Laravel, React, MySQL" />
+                            <small class="text-muted">Contoh: PHP, Laravel, React</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Simpan Perubahan
+                            </button>
+                            <a href="/profile" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Kembali ke Profil
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-image"></i> Avatar</h5>
+                </div>
+                <div class="card-body">
+                    <div id="avatarPreview" class="text-center mb-3" style="min-height: 100px;">
+                    </div>
+                    <form id="avatarForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Upload Avatar (JPG/JPEG/PNG)</label>
+                            <input name="avatar" type="file" accept="image/jpeg,image/png" class="form-control" />
+                            <small class="text-muted">Maksimal ukuran 2MB. Format: JPG, JPEG, atau PNG</small>
+                        </div>
+                        <button type="submit" class="btn btn-info">
+                            <i class="bi bi-cloud-upload"></i> Upload Avatar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-file-pdf"></i> CV/Resume</h5>
+                </div>
+                <div class="card-body">
+                    <form id="cvForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Upload CV (PDF/DOC/DOCX)</label>
+                            <input name="cv" type="file" class="form-control" />
+                            <small class="text-muted">Format: PDF, DOC, atau DOCX. Maksimal 5MB</small>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-cloud-upload"></i> Upload CV
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const baseUrl = 'http://127.0.0.1:8000/api/v1';
-
-        async function request(path, options = {}) {
-            const headers = options.headers || {};
-            const token = localStorage.getItem('apiToken');
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-
-            const response = await fetch(baseUrl + path, {
-                ...options,
-                headers,
-            });
-
-            try {
-                return await response.json();
-            } catch (error) {
-                return { message: 'Invalid JSON response' };
-            }
-        }
-
         function fillProfileForm(user) {
             const profile = user.profile || {};
             const form = document.getElementById('profileForm');
@@ -69,9 +130,12 @@
                 const avatarImg = document.createElement('img');
                 avatarImg.src = `/storage/${user.avatar}`;
                 avatarImg.alt = 'Avatar';
-                avatarImg.style.maxWidth = '160px';
-                avatarImg.style.display = 'block';
+                avatarImg.style.maxWidth = '200px';
+                avatarImg.style.borderRadius = '10px';
+                avatarImg.style.marginBottom = '10px';
                 avatarPreview.appendChild(avatarImg);
+            } else {
+                avatarPreview.innerHTML = '<p class="text-muted">Belum ada avatar</p>';
             }
         }
 
@@ -82,12 +146,33 @@
                 .filter((skill) => skill.length > 0);
         }
 
-        (async function init() {
-            const data = await request('/auth/me', { method: 'GET' });
-            if (data?.user) {
-                fillProfileForm(data.user);
+        function showNoticeAlert(message, isError = false) {
+            const notice = document.getElementById('notice');
+            if (notice) {
+                notice.textContent = message;
+                notice.className = 'alert ' + (isError ? 'alert-danger' : 'alert-success');
+                notice.style.display = 'block';
+                setTimeout(() => {
+                    notice.style.display = 'none';
+                }, 5000);
             }
-        })();
+        }
+
+        async function loadProfile() {
+            try {
+                const data = await request('/auth/me', { method: 'GET' });
+                if (data?.user) {
+                    fillProfileForm(data.user);
+                } else {
+                    showNoticeAlert('Gagal memuat profil', true);
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showNoticeAlert('Error: ' + error.message, true);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProfile);
 
         document.getElementById('profileForm').addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -101,67 +186,126 @@
                 skills: buildSkills(formData.get('skills') || ''),
             };
             const token = localStorage.getItem('apiToken');
-            const response = await fetch(baseUrl + '/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token ? { Authorization: 'Bearer ' + token } : {}),
-                },
-                body: JSON.stringify(payload),
-            });
-            const notice = document.getElementById('notice');
-            let data = null;
             try {
-                data = await response.json();
+                const response = await fetch(baseUrl + '/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+                    },
+                    body: JSON.stringify(payload),
+                });
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    console.error('JSON parse error:', error);
+                    data = { message: 'Server error' };
+                }
+                if (!response.ok) {
+                    showNoticeAlert(data?.message || 'Gagal menyimpan profile.', true);
+                    return;
+                }
+                showNoticeAlert('Profile berhasil disimpan!');
+                setTimeout(() => {
+                    window.location.href = '/profile';
+                }, 1500);
             } catch (error) {
-                data = { message: 'Invalid JSON response' };
+                console.error('Save profile error:', error);
+                showNoticeAlert('Error: ' + error.message, true);
             }
-            if (!response.ok) {
-                notice.textContent = data?.message || 'Gagal menyimpan profile.';
-                return;
-            }
-            notice.textContent = 'Profile berhasil disimpan.';
-            window.location.href = '/profile';
         });
 
         document.getElementById('cvForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
             if (!formData.get('cv')) {
+                showNoticeAlert('Silakan pilih file CV terlebih dahulu', true);
                 return;
             }
-            await request('/profile/cv', {
-                method: 'POST',
-                body: formData,
-            });
-            window.location.href = '/profile';
+            try {
+                const response = await fetch(baseUrl + '/profile/cv', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('apiToken'),
+                    },
+                    body: formData,
+                });
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    console.error('JSON parse error:', error);
+                    data = { message: 'Server error' };
+                }
+                if (!response.ok) {
+                    showNoticeAlert(data?.message || 'Upload CV gagal', true);
+                    return;
+                }
+                showNoticeAlert('CV berhasil diupload!');
+                setTimeout(() => {
+                    window.location.href = '/profile';
+                }, 1500);
+            } catch (error) {
+                console.error('CV upload error:', error);
+                showNoticeAlert('Error: ' + error.message, true);
+            }
         });
 
         document.getElementById('avatarForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
             if (!formData.get('avatar')) {
+                showNoticeAlert('Silakan pilih file avatar terlebih dahulu', true);
                 return;
             }
-            const token = localStorage.getItem('apiToken');
-            const response = await fetch(baseUrl + '/profile/avatar', {
-                method: 'POST',
-                headers: token ? { Authorization: 'Bearer ' + token } : {},
-                body: formData,
-            });
-            const notice = document.getElementById('notice');
-            let payload = null;
             try {
-                payload = await response.json();
+                const token = localStorage.getItem('apiToken');
+                const response = await fetch(baseUrl + '/profile/avatar', {
+                    method: 'POST',
+                    headers: token ? { Authorization: 'Bearer ' + token } : {},
+                    body: formData,
+                });
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch (error) {
+                    console.error('JSON parse error:', error);
+                    payload = { message: 'Server error' };
+                }
+                if (!response.ok) {
+                    console.error('Upload error response:', response.status, payload);
+                    showNoticeAlert(payload?.message || 'Upload gagal. Status: ' + response.status, true);
+                    return;
+                }
+                
+                // Display new avatar immediately
+                const file = formData.get('avatar');
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarPreview = document.getElementById('avatarPreview');
+                    avatarPreview.innerHTML = '';
+                    const avatarImg = document.createElement('img');
+                    avatarImg.src = e.target.result;
+                    avatarImg.alt = 'Avatar';
+                    avatarImg.style.maxWidth = '200px';
+                    avatarImg.style.borderRadius = '10px';
+                    avatarImg.style.marginBottom = '10px';
+                    avatarPreview.appendChild(avatarImg);
+                };
+                reader.readAsDataURL(file);
+                
+                showNoticeAlert('Avatar berhasil diupload! Redirect ke profile...');
+                event.target.reset();
+                
+                // Redirect after 1.5 seconds to see success message
+                setTimeout(() => {
+                    window.location.href = '/profile';
+                }, 1500);
             } catch (error) {
-                payload = { message: 'Invalid JSON response' };
+                console.error('Avatar upload error:', error);
+                showNoticeAlert('Error: ' + error.message, true);
             }
-            if (!response.ok) {
-                notice.textContent = payload?.message || 'Upload gagal.';
-                return;
-            }
-            notice.textContent = 'Avatar berhasil diupload.';
-            window.location.href = '/profile';
         });
     </script>
 @endsection

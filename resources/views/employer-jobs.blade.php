@@ -1,114 +1,134 @@
-@php($title = 'Kelola Lowongan - Job Connect')
+@php($title = 'Lowongan Saya - Job Connect')
 @extends('layout')
 
 @section('content')
-    <section>
-        <h2>Kelola Lowongan (Employer)</h2>
-        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
-        <p><a href="/employer/jobs/new">Tambah Lowongan</a></p>
-        <p><a href="/">Lihat daftar lowongan</a></p>
-        <button type="button" id="loadMyJobsBtn">Muat Lowongan Saya</button>
-        <div id="myJobsList"></div>
-    </section>
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="bi bi-briefcase"></i> Lowongan Pekerjaan Saya</h2>
+                    <a href="/employer/jobs/create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Buat Lowongan Baru
+                    </a>
+                </div>
 
-    <section>
-        <h2>Edit Lowongan</h2>
-        <form id="updateJobForm">
-            <label>ID Lowongan <input name="job_id" type="number" required /></label><br />
-            <label>Judul <input name="title" type="text" /></label><br />
-            <label>Kategori <input name="category" type="text" /></label><br />
-            <label>Tipe <input name="type" type="text" /></label><br />
-            <label>Rentang Gaji <input name="salary_range" type="text" /></label><br />
-            <label>Deskripsi <textarea name="description"></textarea></label><br />
-            <label>Persyaratan <textarea name="requirements"></textarea></label><br />
-            <label>Status <input name="status" type="text" /></label><br />
-            <button type="submit">Simpan Perubahan</button>
-        </form>
-    </section>
-
-    <section>
-        <h2>Hapus Lowongan</h2>
-        <form id="deleteJobForm">
-            <label>ID Lowongan <input name="job_id" type="number" required /></label><br />
-            <button type="submit">Hapus</button>
-        </form>
-    </section>
+                <div class="row" id="jobsList">
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const myJobsList = document.getElementById('myJobsList');
-        const baseUrl = 'http://127.0.0.1:8000/api/v1';
-
-        async function request(path, options = {}) {
-            const headers = options.headers || {};
-            const token = localStorage.getItem('apiToken');
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-
-            const response = await fetch(baseUrl + path, {
-                ...options,
-                headers,
-            });
-
-            let data;
+        async function loadMyJobs() {
             try {
-                data = await response.json();
-            } catch (error) {
-                data = { message: 'Invalid JSON response' };
-            }
+                const response = await fetch(baseUrl + '/employer/jobs', {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('apiToken') }
+                });
+                const data = await response.json();
 
-            return data;
+                console.log('My jobs response:', data);
+                
+                if (data.data && Array.isArray(data.data)) {
+                    renderJobs(data.data);
+                } else {
+                    document.getElementById('jobsList').innerHTML = '<div class="col-12"><p class="text-center text-muted">Anda belum membuat lowongan pekerjaan</p></div>';
+                }
+            } catch (error) {
+                console.error('Load my jobs error:', error);
+                document.getElementById('jobsList').innerHTML = '<div class="col-12"><p class="text-center text-danger">Error memuat data: ' + error.message + '</p></div>';
+            }
         }
 
-        function renderMyJobs(jobs) {
-            if (!Array.isArray(jobs) || jobs.length === 0) {
-                myJobsList.textContent = 'Belum ada lowongan.';
+        function renderJobs(jobs) {
+            if (jobs.length === 0) {
+                document.getElementById('jobsList').innerHTML = '<div class="col-12"><p class="text-center text-muted">Anda belum membuat lowongan pekerjaan</p></div>';
                 return;
             }
 
-            const list = document.createElement('ul');
-            jobs.forEach((job) => {
-                const item = document.createElement('li');
-                item.textContent = `${job.id} | ${job.title} | ${job.status}`;
-                list.appendChild(item);
-            });
-            myJobsList.innerHTML = '';
-            myJobsList.appendChild(list);
+            const jobsHtml = jobs.map(job => {
+                const jobType = job.type === 'full-time' ? 'Full-time' : 'Part-time';
+                const displayStatus = job.status === 'open' ? 'Dibuka' : 'Ditutup';
+                return `
+                <div class="col-md-12 mb-3">
+                    <div class="card job-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-2">${job.title}</h5>
+                                    <p class="text-muted mb-2">
+                                        <i class="bi bi-cash"></i> ${job.salary_range || 'Sesuai kesepakatan'}
+                                    </p>
+                                    <div class="mb-2">
+                                        <span class="badge ${getJobStatusBadge(job.status)}">${displayStatus}</span>
+                                        <span class="badge bg-info">${jobType}</span>
+                                    </div>
+                                    <p class="small text-muted mb-0">Posted: ${new Date(job.created_at).toLocaleDateString('id-ID')}</p>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="/jobs/${job.id}"><i class="bi bi-eye"></i> Lihat Detail</a></li>
+                                        <li><a class="dropdown-item" href="/employer/jobs/${job.id}/edit"><i class="bi bi-pencil"></i> Edit</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteJob('${job.id}')\"><i class="bi bi-trash"></i> Hapus</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+
+            document.getElementById('jobsList').innerHTML = jobsHtml;
         }
 
-        function formToJson(form) {
-            const formData = new FormData(form);
-            const payload = {};
-            for (const [key, value] of formData.entries()) {
-                if (value === '') {
-                    continue;
+        function getJobStatusBadge(status) {
+            const badges = {
+                'published': 'bg-success',
+                'draft': 'bg-secondary',
+                'closed': 'bg-danger'
+            };
+            return badges[status] || 'bg-secondary';
+        }
+
+        function getJobStatusLabel(status) {
+            const labels = {
+                'published': 'Published',
+                'draft': 'Draft',
+                'closed': 'Closed'
+            };
+            return labels[status] || status;
+        }
+
+        async function deleteJob(jobId) {
+            if (confirm('Yakin ingin menghapus lowongan ini?')) {
+                try {
+                    const response = await fetch(baseUrl + '/employer/jobs/' + jobId, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('apiToken') }
+                    });
+
+                    if (response.ok) {
+                        showNotice('Lowongan berhasil dihapus');
+                        setTimeout(() => {
+                            loadMyJobs();
+                        }, 1000);
+                    } else {
+                        showNotice('Gagal menghapus lowongan', true);
+                    }
+                } catch (error) {
+                    showNotice('Error: ' + error.message, true);
                 }
-                payload[key] = value;
             }
-            return payload;
         }
 
-        document.getElementById('loadMyJobsBtn').addEventListener('click', async () => {
-            const data = await request('/employer/jobs', { method: 'GET' });
-            renderMyJobs(data?.data || []);
-        });
-
-        document.getElementById('updateJobForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = formToJson(event.target);
-            const jobId = payload.job_id;
-            delete payload.job_id;
-            await request('/employer/jobs/' + jobId, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-        });
-
-        document.getElementById('deleteJobForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = formToJson(event.target);
-            await request('/employer/jobs/' + payload.job_id, { method: 'DELETE' });
-        });
+        loadMyJobs();
     </script>
 @endsection

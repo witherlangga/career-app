@@ -1,70 +1,110 @@
-@php($title = 'Tambah Lowongan - Job Connect')
+@php($title = 'Buat Lowongan - Job Connect')
 @extends('layout')
 
 @section('content')
-    <section>
-        <h2>Tambah Lowongan</h2>
-        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
-        <form id="createJobForm">
-            <label>Judul <input name="title" type="text" required /></label><br />
-            <label>Kategori <input name="category" type="text" required /></label><br />
-            <label>Tipe <input name="type" type="text" value="full-time" required /></label><br />
-            <label>Rentang Gaji <input name="salary_range" type="text" /></label><br />
-            <label>Deskripsi <textarea name="description" required></textarea></label><br />
-            <label>Persyaratan <textarea name="requirements"></textarea></label><br />
-            <label>Status <input name="status" type="text" value="open" /></label><br />
-            <button type="submit">Simpan</button>
-        </form>
-    </section>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Buat Lowongan Pekerjaan Baru</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="createJobForm">
+                            <div class="mb-3">
+                                <label class="form-label">Judul Pekerjaan <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="title" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Tipe Pekerjaan <span class="text-danger">*</span></label>
+                                <select class="form-select" name="employment_type" required>
+                                    <option value="">- Pilih -</option>
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Freelance">Freelance</option>
+                                    <option value="Internship">Internship</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Lokasi <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="location" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Rentang Gaji</label>
+                                    <input type="text" class="form-control" name="salary_range" placeholder="Contoh: Rp 5-10 juta" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Deskripsi Pekerjaan <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="description" rows="4" required></textarea>
+                                <small class="text-muted">Jelaskan detail pekerjaan, tanggung jawab, dan ekspektasi</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Requirement / Persyaratan <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="requirements" rows="4" required></textarea>
+                                <small class="text-muted">Tuliskan persyaratan dan kualifikasi yang dibutuhkan</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Benefit</label>
+                                <textarea class="form-control" name="benefits" rows="3"></textarea>
+                                <small class="text-muted">Opsional - Sebutkan benefit dan keuntungan bekerja</small>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="/employer/jobs" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x"></i> Batal
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check"></i> Buat Lowongan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const baseUrl = 'http://127.0.0.1:8000/api/v1';
-
-        async function request(path, options = {}) {
-            const headers = options.headers || {};
-            const token = localStorage.getItem('apiToken');
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-
-            const response = await fetch(baseUrl + path, {
-                ...options,
-                headers,
-            });
-
-            let data;
+        document.getElementById('createJobForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = formToJson(this);
+            
+            console.log('Create job payload:', payload);
+            
             try {
-                data = await response.json();
-            } catch (error) {
-                data = { message: 'Invalid JSON response' };
-            }
+                const response = await fetch(baseUrl + '/employer/jobs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('apiToken')
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-            return data;
-        }
+                console.log('Create job response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Create job response data:', data);
 
-        function formToJson(form) {
-            const formData = new FormData(form);
-            const payload = {};
-            for (const [key, value] of formData.entries()) {
-                if (value === '') {
-                    continue;
+                if (response.ok) {
+                    showNotice('Lowongan berhasil dibuat!');
+                    setTimeout(() => {
+                        window.location.href = '/employer/jobs';
+                    }, 1500);
+                } else {
+                    showNotice(data.message || JSON.stringify(data), true);
                 }
-                payload[key] = value;
-            }
-            return payload;
-        }
-
-        document.getElementById('createJobForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const payload = formToJson(event.target);
-            const result = await request('/employer/jobs', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const jobId = result?.job?.id;
-            if (jobId) {
-                window.location.href = `/jobs/${jobId}?src=dashboard`;
+            } catch (error) {
+                console.error('Create job error:', error);
+                showNotice('Error: ' + error.message, true);
             }
         });
     </script>

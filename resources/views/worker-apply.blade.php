@@ -2,105 +2,127 @@
 @extends('layout')
 
 @section('content')
-    <section>
-        <h2>Lamar Pekerjaan</h2>
-        <p><a href="#" onclick="return goBackAndRefresh();">Kembali</a></p>
-        <form id="applyForm" enctype="multipart/form-data">
-            <label>Nama Lengkap <input name="full_name" type="text" required /></label><br />
-            <label>Email <input name="email" type="email" required /></label><br />
-            <label>Nomor HP <input name="phone_number" type="text" required /></label><br />
-            <label>Alamat <textarea name="address" required></textarea></label><br />
-            <label>Posisi Saat Ini <input name="current_role" type="text" required /></label><br />
-            <label>Lama Pengalaman (tahun) <input name="experience_years" type="number" min="0" required /></label><br />
-            <label>Keahlian (pisahkan dengan koma) <input name="skills" type="text" required /></label><br />
-            <label>Ekspektasi Gaji <input name="expected_salary" type="text" required /></label><br />
-            <label>Ringkasan / Surat Lamaran <textarea name="cover_letter" required></textarea></label><br />
-            <label>Upload CV (PDF/DOC/DOCX) <input name="cv" type="file" required /></label><br />
-            <button type="submit">Kirim Lamaran</button>
-        </form>
-    </section>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-hand-thumbs-up"></i> Lamar Pekerjaan</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="jobInfo" class="mb-4 p-3 bg-light rounded">
+                            <h6 id="jobTitle">Loading...</h6>
+                            <p id="jobCompany" class="text-muted mb-0">-</p>
+                        </div>
+
+                        <form id="applicationForm">
+                           <div class="mb-3">
+                                <label class="form-label">Nama Lengkap</label>
+                                <input type="text" class="form-control" id="name" required disabled />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required disabled />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nomor Telepon</label>
+                                <input type="tel" class="form-control" id="phone" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Pesan untuk Employer</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" placeholder="Jelaskan mengapa Anda cocok untuk pekerjaan ini..."></textarea>
+                                <small class="text-muted">Opsional</small>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> akan mengirim CV Anda terbaru kepada employer
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                                    <i class="bi bi-x"></i> Batal
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-hand-thumbs-up"></i> Kirim Lamaran
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const baseUrl = 'http://127.0.0.1:8000/api/v1';
-        const jobId = window.location.pathname.split('/').slice(-2, -1)[0];
-
-        async function request(path, options = {}) {
-            const headers = options.headers || {};
-            const token = localStorage.getItem('apiToken');
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-
-            const response = await fetch(baseUrl + path, {
-                ...options,
-                headers,
-            });
-
+        const jobId = window.location.pathname.split('/')[2];
+        
+        async function loadJobInfo() {
             try {
-                return await response.json();
+                const response = await fetch(baseUrl + '/jobs/' + jobId);
+                const data = await response.json();
+                
+                if (data.data) {
+                    const job = data.data;
+                    const employerName = job.employer?.name || 'PT Anonim';
+                    document.getElementById('jobTitle').textContent = job.title;
+                    document.getElementById('jobCompany').textContent = employerName;
+                }
             } catch (error) {
-                return { message: 'Invalid JSON response' };
+                console.error('Load job info error:', error);
             }
         }
 
-        async function ensureWorker() {
-            const me = await request('/auth/me', { method: 'GET' });
-            if (me?.user?.role !== 'worker') {
-                window.location.href = '/';
-                return false;
+        async function loadUserInfo() {
+            try {
+                const response = await request('/profile');
+                
+                if (response.data) {
+                    const profile = response.data;
+                    document.getElementById('name').value = profile.user?.name || '';
+                    document.getElementById('email').value = profile.user?.email || '';
+                    document.getElementById('phone').value = profile.phone_number || '';
+                }
+            } catch (error) {
+                console.error(error);
             }
-            return true;
         }
 
-        function buildBio(form) {
-            const data = new FormData(form);
-            const currentRole = data.get('current_role');
-            const experience = data.get('experience_years');
-            const expectedSalary = data.get('expected_salary');
-            const coverLetter = data.get('cover_letter');
-
-            return `Posisi saat ini: ${currentRole}\nPengalaman: ${experience} tahun\nEkspektasi gaji: ${expectedSalary}\n\n${coverLetter}`;
-        }
-
-        function buildSkills(value) {
-            return value
-                .split(',')
-                .map((skill) => skill.trim())
-                .filter((skill) => skill.length > 0);
-        }
-
-        document.getElementById('applyForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const ok = await ensureWorker();
-            if (!ok) return;
-            const form = event.target;
-            const formData = new FormData(form);
-
-            const profilePayload = {
-                bio: buildBio(form),
-                address: formData.get('address'),
-                skills: buildSkills(formData.get('skills') || ''),
+        document.getElementById('applicationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+           const payload = {
+                message: document.getElementById('message').value,
+                phone: document.getElementById('phone').value
             };
 
-            await request('/profile', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(profilePayload),
-            });
+            try {
+                const response = await fetch(baseUrl + '/jobs/' + jobId + '/apply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('apiToken')
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-            const cvForm = new FormData();
-            cvForm.append('cv', formData.get('cv'));
-            await request('/profile/cv', {
-                method: 'POST',
-                body: cvForm,
-            });
+                const data = await response.json();
 
-            await request('/jobs/' + jobId + '/apply', { method: 'POST' });
-            window.location.href = '/jobs/' + jobId;
+                if (response.ok) {
+                    showNotice('Lamaran berhasil dikirim!');
+                    setTimeout(() => {
+                        window.location.href = '/worker/applications';
+                    }, 1500);
+                } else {
+                    showNotice(data.message || 'Gagal mengirim lamaran', true);
+                }
+            } catch (error) {
+                showNotice('Error: ' + error.message, true);
+            }
         });
 
-        (async function init() {
-            await ensureWorker();
-        })();
+        loadJobInfo();
+        loadUserInfo();
     </script>
 @endsection

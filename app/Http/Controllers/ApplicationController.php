@@ -37,7 +37,7 @@ class ApplicationController extends Controller
             'applied_at' => now(),
         ]);
 
-        return response()->json(['application' => $application], 201);
+        return response()->json(['data' => $application], 201);
     }
 
     public function myApplications(Request $request)
@@ -52,7 +52,15 @@ class ApplicationController extends Controller
             ->latest()
             ->paginate($perPage);
 
-        return response()->json($applications);
+        return response()->json([
+            'data' => $applications->items(),
+            'pagination' => [
+                'total' => $applications->total(),
+                'per_page' => $applications->perPage(),
+                'current_page' => $applications->currentPage(),
+                'last_page' => $applications->lastPage()
+            ]
+        ]);
     }
 
     public function indexForEmployer(Request $request, JobPost $jobPost)
@@ -71,7 +79,15 @@ class ApplicationController extends Controller
             ->latest()
             ->paginate($perPage);
 
-        return response()->json($applications);
+        return response()->json([
+            'data' => $applications->items(),
+            'pagination' => [
+                'total' => $applications->total(),
+                'per_page' => $applications->perPage(),
+                'current_page' => $applications->currentPage(),
+                'last_page' => $applications->lastPage()
+            ]
+        ]);
     }
 
     public function updateStatus(ApplicationStatusRequest $request, Application $application)
@@ -84,6 +100,6 @@ class ApplicationController extends Controller
 
         $application->update(['status' => $request->validated()['status']]);
 
-        return response()->json(['application' => $application]);
+        return response()->json(['data' => $application]);
     }
 }
